@@ -1,46 +1,46 @@
-# Assessment Walkthrough (90 Minutes)
+# Assessment Walkthrough (90-Minute Script)
+When the timer starts, follow this script. Read each section out loud so you stay deliberate and calm.
 
-Use this timeline to stay on track. Adjust as needed, but keep the checkpoints.
+## Minute 0–5 — Read & Markup
+- “No typing yet.” Skim the entire prompt once.
+- Highlight required inputs/outputs, constraints, forbidden libraries.
+- Open README and jot assumptions: data format, error expectations, edge cases.
+- If any instruction is unclear, note the question (and how you’ll handle if unanswered).
 
-## 0–5 min — Read & Annotate
-- Skim entire prompt once, highlight required output formats and constraints.
-- Capture assumptions, open questions, and sample inputs in the README.
-- Identify core tasks (e.g., SSML parsing, transformations, validation, tests).
+## Minute 5–15 — Plan & Skeleton
+- Outline the modules: `tokenize.ts`, `parser.ts`, `transform.ts`.
+- Decide validation rules (allowed tags/attributes, default break duration, etc.).
+- Draft TODO comments at the top of each file describing the steps you’ll implement.
+- Say it aloud: “Tokenizer first, parser second, transform third, tests after each module.”
 
-## 5–15 min — High-Level Design
-- Outline tokenizer, parser, transformer responsibilities and data structures.
-- Sketch TypeScript interfaces: `Token`, `Node`, `Step`.
-- Decide validation strategy (mismatched tags, time parsing, unknown attributes).
-- Note test cases you must cover (happy path, nested tags, malformed input).
+## Minute 15–35 — Tokenizer Implementation
+- Implement text collection branch (already warmed up from practice).
+- Implement tag detection, attribute parsing, and classification (OPEN/SELF/CLOSE).
+- Add `SsmlError` throws for malformed tags/attributes.
+- Quick manual test: `printf '<speak>hi</speak>' | node dist/main.js` to ensure no crashes.
 
-## 15–35 min — Tokenizer Implementation
-- Type the tokenizer from scratch following the playbook.
-- Handle `<tag>`, `</tag>`, `<tag ... />`, attribute scanning, text collection.
-- Add inline assertions for malformed sequences (missing quotes, stray `<`).
-- Quick manual check with `printf '<speak>hi</speak>' | node dist/main.js`.
+## Minute 35–55 — Parser & Validation
+- Build stack logic: push on open, append on self, append text, pop on close.
+- Validate tag matches and empty stack at end.
+- Decide what to do with unknown tags (ignore vs. error) and document it.
+- Add bash test for nested structure and mismatched close.
 
-## 35–55 min — Parser + Validation
-- Implement stack-based parser ensuring well-formed tree.
-- Guard against mismatched closing tags, premature EOF, extra closing tags.
-- Decide whether to ignore unknown tags or surface errors (document decision).
-- Add tests covering nested structure and error handling (`tests/run_ts.sh`).
+## Minute 55–75 — Transformer & Context
+- Traverse tree depth-first, carrying context (`prosody`, `emphasis`, etc.).
+- Parse `break` times into milliseconds; guard against invalid numbers.
+- Normalize text (collapse whitespace, trim edges).
+- Add tests that check for `breakMs` presence and context propagation.
 
-## 55–75 min — Transformation Layer
-- Convert nodes to actionable steps: text segments, `break`, `prosody`, `emphasis`.
-- Normalize attributes (e.g., `time="500ms"` → 500).
-- Accumulate context (e.g., emphasis stack) with shallow copies.
-- Add validation error reporting for unsupported values.
+## Minute 75–85 — Hardening & Docs
+- Expand test suite: malformed attributes, unsupported tag.
+- Pipe real SSML samples and read the output—does it make sense?
+- Update README with assumptions, validation strategy, and test coverage.
+- Clean up logs, ensure build/tests pass.
 
-## 75–85 min — Tests & Polish
-- Expand Bash tests with clear names and expected markers.
-- Verify CLI usage (`node dist/main.js < input.txt`).
-- Review assumptions / decisions in README; mention future enhancements.
-- Run `git status` to ensure only intended files changed.
+## Minute 85–90 — Final Check & Submission
+- `npm run build`, `npm test`, `git status` (expect clean or known changes only).
+- Commit with a message summarizing the work, push if required.
+- Re-read instructions to ensure every deliverable is satisfied (README, tests, code).
+- Submit according to prompt (upload repo link, zip, etc.).
 
-## 85–90 min — Final Checks
-- Rerun full test script.
-- Re-read prompt to ensure all deliverables satisfied.
-- Commit with descriptive message, push, and copy submission instructions.
-- If time remains, jot down potential optimizations or TODOs.
-
-Stay calm and deliberate. Matching the plan matters more than finishing early.
+Stay vocal, stay methodical. Every minute has a job—stick to it and you’ll finish strong.

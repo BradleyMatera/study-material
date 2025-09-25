@@ -1,26 +1,27 @@
-# Daily Prep Plan (TypeScript)
-Cycle through these four focused days leading up to the assessment.
+# Daily Prep Plan (Say-It-Out-Loud Edition)
+Follow this four-day loop in the week before your assessment. Each block keeps you focused and prevents overthinking.
 
-## Day 1 — Environment & Tokenizer Basics
-- Clone repo, run `npm install` (if using local TypeScript), verify `tsc -v`.
-- Configure VS Code using `.vscode/settings.json`; disable AI helpers.
-- Type tokenizer text-capture path (`TEXT` tokens) twice without referencing code.
-- Review SSML docs focusing on tag catalogue and attribute semantics.
+## Day 1 — Environment + Tokenizer Warm-Up
+- “Install deps.” → `npm install`, confirm `npm run build` works.
+- “Lock the workspace.” → Open `.vscode/settings.json`, make sure AI is off.
+- “Tokenizer basics.” → Type just the text-capture branch (handling plain text segments). Do it twice.
+- “Homework.” → Read SSML docs, list every tag + attribute you might need. Add notes to README.
 
-## Day 2 — Attributes, Stack Parser, Error Paths
-- Implement attribute scanner + tag classification from memory.
-- Build stack-based parser with validation for mismatched tags.
-- Add at least four bash tests (nested, malformed, unknown tag, attribute parsing).
-- Record tricky edge cases in README.
+## Day 2 — Attributes + Stack Parser
+- “Attributes drill.” → Re-type `readAttributes` function from memory with error handling.
+- “Stack parser.” → Type the OPEN/SELF/CLOSE logic, ensure mismatches throw `SsmlError`.
+- “Test cases.” → Add four scenarios to `tests/run_ts.sh`: nested tags, malformed close, unknown tag, numeric attribute.
+- “Reflection.” → Update README with what slowed you down and how you’ll fix it tomorrow.
 
-## Day 3 — Transform & End-to-End Tests
-- Implement transformer to produce `{ text, breakMs, ... }` steps.
-- Handle context propagation (emphasis/prosody) via shallow copies.
-- Run a 90-minute mock: tokenizer → parser → transform + one DSA drill.
-- Summarize learnings/optimizations in README.
+## Day 3 — Transform + Mock Run
+- “Transform function.” → Convert nodes into `{ text, breakMs, prosody }`. Parse `time`, clone context.
+- “Mock assessment (90 min).” → Start a stopwatch, solve tokenizer → parser → transform end to end, plus one DSA drill (e.g., sliding window) in scratch file.
+- “Summarize.” → Capture assumptions, open questions, and bug list in README.
 
 ## Day 4 — Dress Rehearsal
-- Skim all notes; resist the urge to code.
-- Verify tooling: `node -v`, `tsc -v`, `git status`, screen-sharing setup.
-- On start signal: read prompt 5 minutes, outline tasks, then execute in focused loops.
-- Commit frequently with descriptive messages; keep README updated with assumptions.
+- “Skim notes only.” No coding unless something is broken.
+- “Tech check.” → `node -v`, `tsc -v`, `npm test`, screen share sound/video if required.
+- “Game plan.” → Outline the order you’ll implement on the real day (speak it out loud).
+- “Rest.” → Close laptop, sleep, hydrate. Fresh brain beats more practice.
+
+Repeat as needed. The goal is smooth repetition, not heroics. When the real assessment starts, you’ll already know exactly what to do.
