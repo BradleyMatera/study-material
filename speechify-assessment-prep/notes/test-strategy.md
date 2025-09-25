@@ -1,23 +1,30 @@
-# Test Strategy
-Minimal, repeatable checks you can type quickly.
+# Testing & Validation Strategy (TypeScript)
+Fast, deterministic checks using only built-in tooling.
 
-- Write bash harnesses that pipe sample input into your script and grep for markers.
-- Aim for coverage: plain text, nested tags, malformed input, attribute parsing, transform output.
-- Keep failures loud: print both expected + actual before exiting non-zero.
-- Run tests after each milestone (tokenizer, parser, transformer) and commit small.
-- On assessment day, prioritize deterministic cases over exhaustive suites.
+## Bash Harness
+- Compile with `tsc --pretty false` (wired in `tests/run_ts.sh`).
+- Pipe sample input into `node dist/main.js` and grep for markers.
+- Make failures loud: print actual vs. expected markers before exiting.
 
-## Handy Snippets
+## Must-Have Cases
+1. **Plain Text**: `<speak>hello</speak>` → outputs `hello`.
+2. **Self-Closing Tag**: `<break time="500ms"/>` handled correctly.
+3. **Nested Tags**: emphasis + prosody combination.
+4. **Malformed Input**: missing close tag should throw / log error.
+5. **Attributes**: unknown attribute triggers validation path.
+
+## Workflow
+- Run tests after each milestone (tokenizer, parser, transform).
+- Add new `run_case` entries to `tests/run_ts.sh` as regressions pop up.
+- When debugging, print intermediate tokens/nodes to stderr (remove later).
+
+## Manual Spot-Checks
 ```bash
-printf "%s" "<speak>hi</speak>" | python3 src/py/main.py
+printf "%s" "<speak><break time=\"1000ms\"/></speak>" | node dist/main.js
 ```
 
 ```bash
-if printf "%s" "$got" | grep -q "breakMs"; then
-  echo "OK"
-else
-  echo "FAIL"
-fi
+printf "%s" "<speak>hi</speak" | node dist/main.js || echo "expected failure"
 ```
 
-Remember: no pytest/unittest needed—stick to shell + standard library.
+Document pass/fail counts in README before final submission.

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+tsc --pretty false >/dev/null
+
 pass=0; fail=0
 
 run_case() {
   local name="$1" input="$2" expect="$3"
   local got
-  got=$(printf "%s" "$input" | python3 src/py/main.py)
+  got=$(printf "%s" "$input" | node dist/main.js)
   if printf "%s" "$got" | grep -q "$expect"; then
     echo "OK  - $name"
     pass=$((pass + 1))
