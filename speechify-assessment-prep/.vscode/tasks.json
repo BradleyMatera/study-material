@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "test:py",
+      "type": "shell",
+      "command": "bash tests/run_py.sh",
+      "problemMatcher": []
+    }
+  ]
+}
