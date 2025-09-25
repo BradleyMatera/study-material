@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speechify SSML Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Speechify SSML Demo</h1>
+        <p class="tagline">Paste SSML, preview the parsed steps, and hear it spoken aloud.</p>
+      </header>
+      <section class="editor">
+        <label for="ssml">SSML Input</label>
+        <textarea id="ssml" rows="8"><speak>Hello <break time="300ms"/>world<prosody rate="slow">— we got this</prosody></speak></textarea>
+        <div class="actions">
+          <button id="preview">Preview Steps</button>
+          <button id="speak">Speak It</button>
+        </div>
+      </section>
+      <section class="output">
+        <label for="output">Pipeline Output</label>
+        <pre id="output">Steps will appear here…</pre>
+      </section>
+      <footer>
+        <p>Powered by your tokenizer → parser → transformer pipeline. <a href="../make-it-real.md">View build guide</a>.</p>
+      </footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+[
+  { "text": "Hello" },
+  { "breakMs": 300 },
+  { "text": "world" },
+  { "text": "— we got this", "prosody": { "rate": "slow" } }
+]

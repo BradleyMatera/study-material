@@ -48,6 +48,8 @@ docs/                 → Published study site
   test-strategy.md    → Bash/CLI testing tutorials with sample output
   daily-plan.md       → Four-day repetition cycle
   assessment-guide.md → Minute-by-minute script with sample notes
+  make-it-real.md     → Step-by-step interactive demo guide
+  demo/               → Live playground assets (HTML/CSS/JS + sample steps)
 src/ts/               → Empty scaffolding to re-type your solution
   main.ts
   tokenizer.ts
@@ -71,6 +73,7 @@ Example flow for a study session:
 3. Code the tokenizer in `src/ts/tokenizer.ts` from scratch.
 4. Run `npm run build && npm test`.
 5. Flip to `test-strategy.md` if something fails and troubleshoot using the prompts.
+6. Ready to impress? Head to `make-it-real.md` and build the interactive demo.
 
 ## When You Deploy To GitHub Pages
 - Commit your updates: `git add . && git commit -m "Describe change"`.

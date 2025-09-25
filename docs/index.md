@@ -34,6 +34,7 @@ This upfront clarity saves you from rewriting large sections later.
 - **[Testing & Validation Flow](./test-strategy.md)** – Sample bash commands, expected outputs, failure patterns.
 - **[Daily Prep Plan](./daily-plan.md)** – Four-day repetition cycle with specific goals.
 - **[Assessment Walkthrough](./assessment-guide.md)** – Timeline with sample notes and checkpoints.
+- **[Make It Real Demo](./make-it-real.md)** – Buttons, voice playback, and deployment walkthrough to wow reviewers.
 
 ## Example: First Ten Minutes Of Practice
 1. Read this page out loud and tick through the checklist.
