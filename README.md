@@ -1,52 +1,83 @@
 # Speechify Assessment Prep (TypeScript)
 
-This repo is your spoken-out-loud tutorial for the Speechify SSML + DSA assessment. Every page in `docs/` is written so you can literally read it to yourself during practice and on test day. No AI, no copy/paste—just clear explanations plus examples you can re-type fast.
+This repository is your spoken-out-loud study buddy for the Speechify SSML + DSA assessment. Every page in `docs/` is written so you can literally read it while you work. The pages explain **what to do, why it matters, and what a finished step should look like.**
 
-## Why This Exists
-- You only get 90 minutes. The fastest way to stay calm is to rehearse the exact moves you need.
-- The challenge mixes SSML parsing with general DSA patterns. That means strings, stacks, and tight error handling.
-- You are expected to write everything from scratch. So these notes describe *what to type* and *why*, not finished code.
+## What This Repo Gives You
+- **Live tutorial site** (`docs/` → GitHub Pages) with plain-language scripts you can voice while coding.
+- **TypeScript starter files** (`src/ts/`) so you can rehearse the tokenizer, parser, and transformer structure without copying code.
+- **Zero-dependency test harness** (`tests/run_ts.sh`) that mirrors the assessment environment.
+- **VS Code workspace settings** that shut down AI helpers and map tests to `Cmd/Ctrl + Shift + B`.
 
-## What Lives Where
-- `docs/` → GitHub Pages site. Open it in a browser tab; it acts like your personal walkthrough.
-- `src/ts/` → TypeScript scaffolding you’ll flesh out by hand (tokenizer, parser, transform).
-- `tests/` → Bash harness (`run_ts.sh`) that compiles with `tsc` and pipes sample inputs.
-- `.vscode/` → Workspace settings that shut down Copilot/inline AI and add a one-key test task.
-- `package.json` + `tsconfig.json` → Local TypeScript toolchain so you can compile without extra setup.
+## Why We Highlight Inputs, Outputs, and Assumptions
+During the real assessment you have 90 minutes. The fastest way to avoid rework is to lock down the facts up front:
+- **Highlight required inputs/outputs** so you don’t miss a format detail (e.g., “expects JSON array of steps”).
+- **Note constraints** (time limits, forbidden libraries) before you accidentally break them.
+- **Write assumptions** in the README so reviewers see your reasoning and you have a checklist to validate against.
 
-## Setup in 10 Minutes
-1. `npm install` to grab the local TypeScript compiler.
-2. `npm run build` to produce `dist/` (so the test script has something to run).
-3. `npm test` or `bash tests/run_ts.sh` to see the placeholder smoke tests fire.
-4. In VS Code hit `Cmd/Ctrl + Shift + B` and pick `test:ts` for the one-key loop.
-5. Push to GitHub, enable Pages with folder `/docs`, and bookmark the live URL.
+You’ll see this pattern across the tutorial: understand the contract → state it → build to it.
 
-## How to Use the Tutorial Site
-Open your deployed GitHub Pages site and follow it section by section:
-- **Start at the landing page** for the pre-flight checklist and rules.
-- Jump into the **Parsing SSML Playbook** for the tokenizer/stack walkthrough with real snippets like `<speak>Hello <break time="400ms"/></speak>`.
-- Use **DSA Patterns** when you need a warm-up: each pattern lists where it appears in SSML land plus a mini-example.
-- The **Assessment Walkthrough** gives you a minute-by-minute game plan you can literally speak out loud.
+## Setup Checklist (10 Minutes)
+1. `npm install` – grabs the local TypeScript compiler.
+2. `npm run build` – compiles `src/ts` into `dist/`.
+3. `npm test` – runs `tests/run_ts.sh`; tweak as you add scenarios.
+4. Publish GitHub Pages: push to `main`, then Settings → Pages → branch `main`, folder `/docs`.
+5. Bookmark `https://<you>.github.io/study-material/` and keep it open during practice.
 
-Each page includes callouts such as “Say this out loud…” so you remember to verbalize the steps, not just skim them.
+## How To Practice With The Repo
+1. Open the live site next to VS Code.
+2. Read the relevant section **out loud** (yes, really). Hearing yourself reinforces the steps.
+3. Type the logic in `src/ts/` from scratch—no copy/paste.
+4. Run `npm run build && npm test` after each milestone.
+5. Capture takeaways in README under a “Practice Log” section.
 
-## Practicing With the Scaffolding
-- Compile: `npm run build`
-- Run: `printf '<speak>hello</speak>' | node dist/main.js`
-- Test loop: edit → `npm run build` → `npm test`
-- Treat `src/ts/*.ts` as starter files—you will delete the TODO comments and type the real logic during practice sessions.
+### Example Practice Log Entry
+```
+2024-09-25 — Tokenizer Focus
+✔ Handles open/self/close tags.
+✔ Throws SsmlError on missing quote.
+✘ Need to support &lt; entities (add tomorrow).
+```
 
-## Deploying the Live Guide
-1. `git add . && git commit -m "your message"`
-2. `git push origin main`
-3. GitHub → **Settings** → **Pages** → Source: *Deploy from a branch* → `main` / `docs`
-4. Wait for the green “Pages build and deployment” check, then visit `https://<your-user>.github.io/study-material/`
+## Repo Map
+```
+docs/                 → Published study site
+  index.md            → Landing page + rules explained
+  parsing-ssml.md     → Tokenizer/parser/transform playbook with examples
+  dsa-recipes.md      → Algorithms translated for web dev brain
+  language-cheats.md  → TypeScript snippets and talking points
+  test-strategy.md    → Bash/CLI testing tutorials with sample output
+  daily-plan.md       → Four-day repetition cycle
+  assessment-guide.md → Minute-by-minute script with sample notes
+src/ts/               → Empty scaffolding to re-type your solution
+  main.ts
+  tokenizer.ts
+  parser.ts
+  transform.ts
+tests/run_ts.sh       → Bash harness (edit as you add cases)
+.vscode/              → Settings, tasks, and extension recommendations
+package.json          → Build/test scripts
+```
 
-## On Test Day (Read This Aloud)
-- “Chrome? open. Node and tsc? `node -v`, `tsc -v` good. GitHub? logged in. Copilot? off.”
-- “Five-minute read of prompt; highlight inputs/outputs, list assumptions in README.”
-- “Implement in layers: tokenizer text → tag parsing → stack parser → transform → validation → tests.”
-- “Run tests after every milestone, jot results in README, commit often.”
-- “Finish with README summary: assumptions, coverage, known gaps.”
+## Using The Tutorial Site
+Each page gives you:
+- **Why** the step matters during the interview.
+- **What to say out loud** to stay focused.
+- **Mini examples** of the input/output you should match.
+- **Follow-up drills** if you finish early.
 
-Keep this repo lean, keep the notes open, and work the plan out loud. That muscle memory is what will win the assessment.
+Example flow for a study session:
+1. Start at `index.md` and run through the pre-flight checklist.
+2. Jump to `parsing-ssml.md` and walk through the tokenizer example.
+3. Code the tokenizer in `src/ts/tokenizer.ts` from scratch.
+4. Run `npm run build && npm test`.
+5. Flip to `test-strategy.md` if something fails and troubleshoot using the prompts.
+
+## When You Deploy To GitHub Pages
+- Commit your updates: `git add . && git commit -m "Describe change"`.
+- Push to `main`: `git push origin main`.
+- GitHub Pages rebuilds automatically; reload the live site for the new content.
+
+## Test Day Reminder Script
+> “Laptop ready. Chrome open. GitHub logged in. `node -v`, `tsc -v` good. Copilot off. Read the full prompt for five minutes. Highlight inputs/outputs, note assumptions in README. Build tokenizer → parser → transform → tests. Document decisions, run tests, commit, push. Breathe.”
+
+Speak it. Do it. Ship it.

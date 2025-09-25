@@ -1,13 +1,14 @@
 # Testing & Validation Strategy (Speak Your Checks)
-Great code still needs proof. This page teaches you how to sanity-check your SSML pipeline using only Node, Bash, and your own voice.
+You don’t need Jest or fancy tooling—just Bash, Node, and a clear idea of what “correct” output looks like. This page shows you **what to run, what the output should look like, and how to reason about failures.**
 
-## Test Loop Mantra
-1. “Build the TypeScript.” → `npm run build`
-2. “Pipe a sample through the CLI.” → `printf "<speak>hi</speak>" | node dist/main.js`
-3. “Check for markers.” → `grep` for expected words or JSON keys.
-4. “Log failures loudly, exit non-zero.”
+## Default Test Loop
+Say this out loud before each run:
+1. “Build fresh TypeScript.” → `npm run build`
+2. “Run the script with sample input.” → `printf "..." | node dist/main.js`
+3. “Scan for markers.” → `grep` for expected text/JSON keys.
+4. “Log failures loudly and exit non-zero.”
 
-## The `tests/run_ts.sh` Script
+## `tests/run_ts.sh` Explained
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -31,37 +32,63 @@ run_case() {
   fi
 }
 ```
-Say it: “Compile, run case, grep, mark pass/fail.”
+**What to say while reading:** “Compile once, run case, grep, report, keep score.”
 
-Add new cases as you grow coverage:
+### Add Real Cases (examples)
 ```bash
-run_case "nested prosody" "<speak><prosody rate=\"slow\">hi</prosody></speak>" "rate"
-run_case "missing close" "<speak><emphasis>oops" "Unclosed tag"
+run_case "text only" "<speak>Hello</speak>" "Hello"
+run_case "break tag" "<speak>Hi<break time=\"300ms\"/></speak>" "breakMs": 300
+run_case "nested prosody" "<speak><prosody rate=\"slow\">Calm</prosody></speak>" "\"rate\": \"slow\""
+run_case "missing close" "<speak><emphasis>Oops" "Unclosed tag"
 ```
 
-## What To Cover
-- **Happy path:** plain text, text + break, nested tags.
-- **Edge path:** missing close tag, unknown attribute, malformed time string.
-- **Formatting:** whitespace trimming, entity decoding if you support it.
-- **Validation:** ensure errors show helpful messages (index, line, tag name).
+> **Tip:** Use distinctive substrings (`"rate": "slow"`) instead of full JSON to keep the grep simple.
 
-## Manual Spot Checks
+## Manual Spot-Check Commands
+Run these between script executions to sanity-check individual stages:
 ```bash
-# Inspect tokens quickly
+# 1. Raw run of your compiled script
 printf '<speak>hi</speak>' | node dist/main.js
 
-# Force an error
-printf '<speak><prosody>hey' | node dist/main.js || echo "expected failure"
+# 2. See what happens on malformed input
+printf '<speak><break>' | node dist/main.js || echo "expected failure"
+
+# 3. Inspect intermediary tokens (add temporary logging)
+DEBUG=tokens printf '<speak>hi</speak>' | node dist/main.js
 ```
-Narrate what you expect *before* you run it. If the output disagrees, you already know where to dig.
+Make sure to remove temporary logs once you’re confident again.
 
-## Tracking Results In README
-After each session, log:
-- Which cases pass.
-- What broke and why.
-- What to test next time.
+## Sample Failure Analysis (talk through it)
+```
+FAIL- break tag
+got: {"text":"Hi"}
+exp: "breakMs": 300
+```
+Say: “Output is missing `breakMs`. Likely the transformer skipped self-closing tags. Check `transform.ts` → break handling.”
 
-Example entry:
-> “Tokenizer handles attributes now. Missing closing tag surfaces `SsmlError: Expected </prosody>`. Need to handle `strength` attribute on `<break>` tomorrow.”
+Another example:
+```
+FAIL- missing close
+got: (nothing returns)
+exp: Unclosed tag
+```
+Say: “Program exited silently. Parser probably swallowed the error. Add assertion before popping stack and throw `SsmlError`.”
 
-Testing is your confidence meter. Speak the checks, run them often, and never go more than a few minutes without feedback.
+## Recording Results In README
+After each test run, update your practice log:
+```
+Tests 2024-09-25
++ text only
++ nested prosody
+- missing close (throws generic Error, need SsmlError)
+```
+This history tells reviewers you tested thoughtfully and helps you decide what to revisit tomorrow.
+
+## Final Test Sweep Before Submission
+1. `npm run build`
+2. `npm test`
+3. Manual run with a real SSML sample from docs (copy the text, not the code).
+4. `git status` → clean? Good.
+5. Mention passing tests and known gaps in README.
+
+Testing is the guardrail that keeps you shipping with confidence. Keep speaking the script, keep adding cases, and you’ll catch regressions before they bite you.

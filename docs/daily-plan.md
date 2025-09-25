@@ -1,27 +1,32 @@
 # Daily Prep Plan (Say-It-Out-Loud Edition)
-Follow this four-day loop in the week before your assessment. Each block keeps you focused and prevents overthinking.
+Use this four-day loop repeatedly. Each bullet tells you **what to do, why it matters, and what success looks like**. Speak the steps as you execute them.
 
 ## Day 1 — Environment + Tokenizer Warm-Up
-- “Install deps.” → `npm install`, confirm `npm run build` works.
-- “Lock the workspace.” → Open `.vscode/settings.json`, make sure AI is off.
-- “Tokenizer basics.” → Type just the text-capture branch (handling plain text segments). Do it twice.
-- “Homework.” → Read SSML docs, list every tag + attribute you might need. Add notes to README.
+- “Install deps.” → `npm install` — so `tsc` works offline.
+- “Build once.” → `npm run build` — confirms TypeScript configuration is correct.
+- “Tokenizer basics.” → Type only the TEXT-handling branch in `tokenizer.ts`. Success = piping `<speak>hello</speak>` prints a TEXT token.
+- “Homework read.” → Skim official SSML docs; write a bulleted list of supported tags in README. This becomes your validation checklist tomorrow.
 
 ## Day 2 — Attributes + Stack Parser
-- “Attributes drill.” → Re-type `readAttributes` function from memory with error handling.
-- “Stack parser.” → Type the OPEN/SELF/CLOSE logic, ensure mismatches throw `SsmlError`.
-- “Test cases.” → Add four scenarios to `tests/run_ts.sh`: nested tags, malformed close, unknown tag, numeric attribute.
-- “Reflection.” → Update README with what slowed you down and how you’ll fix it tomorrow.
+- “Attributes drill.” → Re-type `readAttributes` with error handling. Test by feeding `<tag foo="bar">` and `<tag foo=bar>`; second case must throw `SsmlError`.
+- “Stack parser.” → Implement OPEN/SELF/CLOSE handling. Success = nested sample produces a tree without errors.
+- “Tests.” → Add four cases to `tests/run_ts.sh`:
+  1. Nested tags (`<prosody><emphasis>`)
+  2. Missing close tag
+  3. Unknown tag decision (ignore or error)
+  4. Attribute parsing (break time)
+- “Reflection.” → Log in README: “Parser passes 3/4 tests. Unknown tags currently ignored.”
 
-## Day 3 — Transform + Mock Run
-- “Transform function.” → Convert nodes into `{ text, breakMs, prosody }`. Parse `time`, clone context.
-- “Mock assessment (90 min).” → Start a stopwatch, solve tokenizer → parser → transform end to end, plus one DSA drill (e.g., sliding window) in scratch file.
-- “Summarize.” → Capture assumptions, open questions, and bug list in README.
+## Day 3 — Transformer + Mock Assessment
+- “Transform function.” → Convert nodes into `{ text, breakMs, ... }`. Include `parseTime` helper.
+- “Mock run (90 min).” → Start timer. From scratch: tokenizer → parser → transformer → tests. Also solve one DSA drill (choose from `dsa-recipes.md`).
+- “Result log.” → In README, note execution time, failing cases, and what to revisit.
+- “Optional stretch.” → Try parsing a real SSML sample from Amazon Polly docs and confirm output.
 
-## Day 4 — Dress Rehearsal
-- “Skim notes only.” No coding unless something is broken.
-- “Tech check.” → `node -v`, `tsc -v`, `npm test`, screen share sound/video if required.
-- “Game plan.” → Outline the order you’ll implement on the real day (speak it out loud).
-- “Rest.” → Close laptop, sleep, hydrate. Fresh brain beats more practice.
+## Day 4 — Dress Rehearsal & Rest
+- “Skim notes only.” Resist coding unless something is broken.
+- “Tech check.” → `node -v`, `tsc -v`, `npm test`, screen share readiness if required.
+- “Game plan dry run.” → Verbally walk through the minute-by-minute script in `assessment-guide.md`.
+- “Rest + logistics.” → Set calendar reminder, charge devices, prepare quiet workspace.
 
-Repeat as needed. The goal is smooth repetition, not heroics. When the real assessment starts, you’ll already know exactly what to do.
+Repeat the cycle if time allows. The point is to make every major task (tokenizer, parser, transform, testing) feel automatic.

@@ -1,40 +1,53 @@
 # Speechify Assessment Hub (TypeScript)
 
-Welcome to your personal study site. The idea is simple: keep this page open, read it out loud, and follow the play-by-play without relying on any AI helpers.
+This is the homepage for your live tutorial site. Keep it open during prep and on assessment day. Every checklist explains **what to do, why you’re doing it, and what “done” should look like.**
 
-## Pre-Flight Checklist (Say It, Touch It, Done)
-- “Browser? Chrome open. GitHub signed in. SSH check:” `ssh -T git@github.com`.
-- “Runtime? `node -v` shows LTS, `tsc -v` works.”
-- “Editor? VS Code using this repo. Copilot + inline suggestions disabled.”
-- “Focus? Read prompt for five minutes before typing anything.”
-- “Plan? Tokenize → Parse → Validate → Transform → Tests → README wrap.”
+## Pre-Flight Checklist (Talk It Through)
+1. **Access** – “Chrome open? GitHub signed in? SSH works:” `ssh -T git@github.com`.
+2. **Runtime** – “`node -v` and `tsc -v` both respond. Using LTS Node.”
+3. **Workspace** – “VS Code loaded this repo. `.vscode/settings.json` confirms Copilot is disabled.”
+4. **Instructions** – “Timer not started yet. I will read the entire prompt once before typing.”
+5. **High-Level Plan** – “Tokenize → Parse → Validate → Transform → Tests → README.”
 
-## Rules Recap From The Email
-- Language is **TypeScript with Node**. Stick to standard library only.
-- You **cannot** copy code from ChatGPT, StackOverflow, or any AI. You *can* look at documentation.
-- Read the instructions carefully; ambiguous bits should be captured as assumptions in your README before coding.
-- Work locally, commit locally, then push when the assignment asks for it.
+> **Why these steps?** You’re proving to yourself that the environment is ready and you fully understand the assignment before touching code. That keeps you from wasting time on avoidable errors.
 
-## Quick Map Of The Notes
-- 👉 [Parsing SSML Playbook](./parsing-ssml.md) — tokenizer + parser explained with real SSML snippets.
-- 👉 [DSA Patterns & Drills](./dsa-recipes.md) — common algorithms plus how they surface in the challenge.
-- 👉 [TypeScript Cheats & Templates](./language-cheats.md) — syntax reminders, I/O snippets, custom error helpers.
-- 👉 [Testing & Validation Flow](./test-strategy.md) — how to build fast bash checks and what to look for.
-- 👉 [Daily Prep Plan](./daily-plan.md) — four-day loop to lock the muscle memory.
-- 👉 [Assessment Walkthrough](./assessment-guide.md) — minute-by-minute timeline for test day.
+## Understanding The Rules (Plain English)
+- **Language**: TypeScript on Node. Use the standard library plus anything already in the repo.
+- **External help**: Documentation and reference material is fine. Copying code or using AI assistants is prohibited.
+- **Expect ambiguity**: If the prompt doesn’t say what to do, write a reasonable assumption in the README and build to it.
+- **Deliverables**: Usually code + tests + README notes. Double-check the prompt to confirm.
 
-## How To Use This Site
-1. **Read each section out loud.** Hearing yourself describe the steps locks them in far better than silent skimming.
-2. **Mirror the phrasing in code.** Example: when the notes say “push token onto stack, assert closing tag,” literally say that while typing the function.
-3. **Loop through drills.** Each page has small exercises—treat them as spoken checklists while you type.
-4. **Update your README** after every practice run with what worked and what felt slow. Future-you will thank you.
+## What To Do When You First Read The Prompt
+1. Highlight key phrases like “input is a single file,” “output must be JSON,” “handle invalid SSML gracefully.”
+2. Write a quick assumptions section in the README. Example:
+   - “Assume input is valid UTF-8.”
+   - “Break tags without `time` default to 500ms.”
+   - “Unknown tags are ignored but logged.”
+3. List the edge cases you want to test: missing closing tags, nested prosody + emphasis, invalid time value.
 
-## On Test Day (Short Script)
-1. Clone repo → `npm install` → `npm run build`.
-2. Verify tests run: `npm test` (expect break placeholder until you finish logic).
-3. Outline the tokenizer on paper or in comments, then fill it in step by step.
-4. Keep the stack parser tight—log tokens when something feels off.
-5. Transform results, run bash tests, expand coverage, document decisions.
-6. Final sweep: README summary, git status clean, push, double-check submission form.
+This upfront clarity saves you from rewriting large sections later.
 
-Take a breath. You already rehearsed this. Follow the script and speak your way through the build.
+## Quick Map Of The Tutorial
+- **[Parsing SSML Playbook](./parsing-ssml.md)** – Step-by-step tokenizer, parser, transformer with before/after examples.
+- **[DSA Patterns & Drills](./dsa-recipes.md)** – Common algorithms explained like you’re pairing with another dev.
+- **[TypeScript Cheats & Templates](./language-cheats.md)** – Snippets for I/O, error handling, and string utilities.
+- **[Testing & Validation Flow](./test-strategy.md)** – Sample bash commands, expected outputs, failure patterns.
+- **[Daily Prep Plan](./daily-plan.md)** – Four-day repetition cycle with specific goals.
+- **[Assessment Walkthrough](./assessment-guide.md)** – Timeline with sample notes and checkpoints.
+
+## Example: First Ten Minutes Of Practice
+1. Read this page out loud and tick through the checklist.
+2. Jump to the SSML playbook and read the tokenizer example.
+3. Type the tokenizer from scratch in `src/ts/tokenizer.ts`.
+4. Run `npm run build && printf '<speak>Hello</speak>' | node dist/main.js`.
+5. Note the result: should print a placeholder TEXT token for now.
+6. Log what worked and what failed in README → Practice Log.
+
+## On Test Day (Micro Script)
+1. Clone the repo they give you, run `npm install`, `npm run build`.
+2. Recreate your assumptions section in their README so you don’t forget the plan.
+3. Implement the tokenizer first; it unlocks everything else.
+4. Run tests and log output after every major step. Failures tell you where to look.
+5. With 15 minutes left, stop adding features—stabilize, document, and prepare for submission.
+
+You’re in control. Keep the notes open, keep speaking your plan, and keep moving forward.

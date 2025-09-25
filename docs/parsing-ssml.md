@@ -1,90 +1,158 @@
 # Parsing SSML (TypeScript Game Plan)
-Forget memorizing code. Use this page to talk yourself through the pipeline, then type it from scratch. Keep the script conversational so you stay calm.
+Talk through the pipeline as you code it. Each section below tells you **what to do, why it matters, the exact data shape you should produce, and a sample you can mimic.**
 
-## Mental Model
-Think of SSML as HTML-lite for voice. You read a string, convert it into tokens, stack those into a tree, and finally flatten the tree into the steps your synth cares about. Three stages:
-1. **Tokenizer** — “I’m walking the string, identifying tags versus text.”
-2. **Parser** — “I’m using a stack to build a little DOM.”
-3. **Transformer** — “I’m translating the tree into `{ text, breakMs, prosody }` chunks.”
+## Overview: Three Stages
+1. **Tokenizer** – walks the raw string and emits tokens.
+2. **Parser** – turns tokens into a tree using a stack.
+3. **Transformer** – walks the tree and creates the final “utterance steps.”
 
-## Walkthrough With A Real Example
-Take this snippet:
+You’ll implement each stage in its own file so bugs are easy to isolate.
+
+---
+
+## 1. Tokenizer
+**Goal:** Convert SSML text into tokens shaped like `{ kind, tag?, attrs?, text? }`.
+
+### Example Input
 ```xml
-<speak>
-  Hello <break time="400ms"/> world
-  <prosody rate="slow">chill vibes</prosody>
-</speak>
+<speak>Hello <break time="400ms"/> world<prosody rate="slow">chill</prosody></speak>
 ```
-Say this as you work:
-- “Text `\n  Hello ` → emit TEXT token.”
-- “`<break time="400ms"/>` → self-closing tag with attrs.”
-- “`world` → TEXT.”
-- “`<prosody ...>` → OPEN, push on stack.”
-- “`chill vibes` → TEXT inside prosody.”
-- “`</prosody>` → CLOSE, pop.”
-- “`</speak>` → CLOSE root child.”
 
-## Tokenizer Checklist
-1. Initialize `i = 0`. While `i < input.length`:
-   - If current char is `<`:
-     - Peek `input[i + 1]`. If `/`, this is a closing tag.
-     - Otherwise read tag name: letters, digits, dash. Stop at whitespace or `>` or `/`.
-     - Call `readAttributes()` until you hit `>` or `/>`.
-     - If you see `/>` → emit `{ kind: "SELF", tag, attrs }`.
-     - Else if it was a closing tag → emit `{ kind: "CLOSE", tag }`.
-     - Else → emit `{ kind: "OPEN", tag, attrs }`.
-   - If current char is not `<`:
-     - Find the next `<` (or end of string), slice the text, trim only if you need to.
-     - Emit `{ kind: "TEXT", text }` when text isn’t empty or pure whitespace (decide and document).
-2. Advance `i` carefully: after reading a tag, make sure you land on the first character after `>`.
+### Expected Tokens (say them out loud)
+```
+OPEN  speak            {}
+TEXT  "Hello "
+SELF  break            { time: "400ms" }
+TEXT  " world"
+OPEN  prosody          { rate: "slow" }
+TEXT  "chill"
+CLOSE prosody
+CLOSE speak
+```
 
-### Attributes Helper (Speak It Out)
-- “Skip whitespace, read key until `=`.”
-- “Expect double quote. If it’s missing, throw `new Error("Attribute xyz missing quotes")`.”
-- “Read until next `"`, store in object (lowercase key).”
-- “Skip trailing whitespace, repeat.”
-- Handle XML entities if you want bonus points—document the choice either way.
+### Implementation Script
+1. Set `i = 0`. While `i < input.length`:
+   - If you see `<`:
+     - If next char is `/`, it’s a `CLOSE` token.
+     - Else read the tag name (letters, digits, hyphen).
+     - Call `readAttributes()` (details below).
+     - If the tag ends with `/>`, emit `SELF`. Otherwise emit `OPEN`.
+   - If you see anything else, read until the next `<` and emit `TEXT`.
+2. Advance `i` carefully so you never re-read the same character.
+3. Wrap errors in `SsmlError` with a `position` property to help debugging.
 
-## Parser Stack Script
-- Start with `const root = { tag: "root", attrs: {}, children: [], text: "" }`.
-- `const stack = [root];`
-- For each token:
-  - `OPEN`: create node, push onto parent’s `children`, push onto stack.
-  - `SELF`: create node, append to `children`, do **not** push.
-  - `TEXT`: append to `stack.at(-1)!.text`. Consider normalizing whitespace; document your rule.
-  - `CLOSE`: assert `stack.at(-1)!.tag === token.tag`. If not, throw an error including the token index. Then `stack.pop()`.
-- After the loop, assert `stack.length === 1`. Anything else means an unclosed tag.
+### `readAttributes` Helper
+- Skip whitespace.
+- Read the key until `=`.
+- Expect `"`; if missing, throw `SsmlError("Attribute xyz missing quotes", i)`.
+- Read until closing `"`; store `attrs[key.toLowerCase()] = value`.
+- Continue until you hit `>` or `/>`.
 
-### Validation Reminders
-- Allowed tags: `speak`, `p`, `s`, `break`, `prosody`, `emphasis`, `say-as` … add to a set.
-- Allowed attributes per tag: e.g., `break` → `time`, `strength`; `prosody` → `rate`, `pitch`, `volume`.
-- Time parsing: support `500ms` and `1.5s`. Convert seconds → milliseconds.
-- Unknown tag/attribute? Decide: ignore and warn, or throw. Whichever you do, explain it in README.
+### Extra Credit
+- Track line/column numbers by incrementing counters on `\n`.
+- Decode HTML entities (`&lt;`, `&gt;`, `&amp;`) if the prompt calls for it.
 
-## Transform Layer Script
-- Depth-first walk with `walk(node, ctx)`.
-- `ctx` holds current formatting (e.g., `{ prosody: { rate: "slow" }, emphasis: "moderate" }`).
-- On `break`: parse duration, push `{ breakMs }` to `steps`.
-- On text: `if (node.text.trim()) steps.push({ text: cleanText(node.text), ...ctx });`
-- On children: clone context with `{ ...ctx }` before recursing.
-- When leaving a node, nothing special since you used cloning.
+---
 
-### Cleaning Text
-- Collapse spaces: `text.replace(/\s+/g, " ").trim()`.
-- Handle leading/trailing whitespace so output looks natural.
-- If you need punctuation adjustments, document the rule (e.g., ensure period spacing).
+## 2. Parser
+**Goal:** Convert tokens into a node tree. Each node should look like:
+```ts
+interface Node {
+  tag: string;
+  attrs: Record<string, string>;
+  children: Node[];
+  text: string; // text directly inside this tag
+}
+```
 
-## Error Messaging Playbook
-- Use custom errors for clarity: `class SsmlError extends Error { constructor(message, public position: number) { super(message); } }`
-- Include index or line/column by tracking them in tokenizer (increment line on `\n`).
-- When throwing, prefer actionable wording: “Expected closing tag </prosody> but found </emphasis> at index 142.”
+### Sample Tree (read top-to-bottom)
+```
+root
+ └── speak
+     ├── TEXT: "Hello "
+     ├── break
+     ├── TEXT: " world"
+     └── prosody (attrs: { rate: "slow" })
+          └── TEXT: "chill"
+```
 
-## Practice Routine
-Say these out loud as you practice:
-1. “Tokenizer dry run: tags, attributes, text—15 minutes max.”
-2. “Parser dry run: open/self/close/text. Check stack every time.”
-3. “Transform dry run: convert to steps, parse break time, carry context.”
-4. “Error drills: feed malformed SSML and confirm the right message appears.”
-5. “Document results in README: what felt slow, what needs another pass.”
+### Stack Process
+1. Start with `root` node on the stack (`stack = [root]`).
+2. For each token:
+   - `OPEN`: create a child node, push it onto parent’s `children`, then push onto stack.
+   - `SELF`: create a child node, append to `children`, do **not** push.
+   - `TEXT`: append to `stack.at(-1)!.text`.
+   - `CLOSE`: verify `stack.at(-1)!.tag === token.tag`; if not, throw `SsmlError("Expected </${stackTop}> but found </${token.tag}>", position)`. Then pop.
+3. After the loop, assert `stack.length === 1`. If not, the input had an unclosed tag.
 
-You’ll know you’re ready when you can narrate the entire pipeline without looking at this page. Until then, keep rehearsing.
+### Validation Hooks (pick the ones you need)
+- Allowed tags set: `{ speak, p, s, break, prosody, emphasis, say-as }`.
+- Allowed attributes per tag: e.g. `break` → `{ time, strength }`.
+- Detect nested tags that violate rules (if the prompt specifies any).
+- Record warnings for unknown tags rather than throwing if the prompt prefers leniency.
+
+Document whatever policy you choose in the README so reviewers know it was intentional.
+
+---
+
+## 3. Transformer
+**Goal:** Produce an array of steps for speech playback. Shape each step like:
+```ts
+interface Step {
+  text?: string;
+  breakMs?: number;
+  emphasis?: string;
+  prosody?: { rate?: string; pitch?: string; volume?: string };
+}
+```
+
+### Example Output For The Sample Tree
+```js
+[
+  { text: "Hello" },
+  { breakMs: 400 },
+  { text: "world" },
+  { text: "chill", prosody: { rate: "slow" } }
+]
+```
+
+### Traversal Script
+1. Define `walk(node, ctx)` where `ctx` is the current formatting context (e.g., `{ emphasis: "moderate" }`).
+2. If the node is `break`, parse `time`:
+   ```ts
+   function parseTime(value: string): number {
+     if (value.endsWith("ms")) return Number.parseFloat(value.slice(0, -2));
+     if (value.endsWith("s")) return Number.parseFloat(value.slice(0, -1)) * 1000;
+     throw new SsmlError(`Unsupported time format: ${value}`, -1);
+   }
+   ```
+   Push `{ breakMs }` into `steps`.
+3. If the node has text (after trimming), push `{ text, ...ctx }`.
+4. For child nodes, call `walk(child, { ...ctx, /* updates for this tag */ })`.
+   - Example: if tag is `prosody` with `rate="slow"`, new context is `{ ...ctx, prosody: { ...(ctx.prosody ?? {}), rate: "slow" } }`.
+5. Run `walk` for each top-level child of the root.
+
+### Common Transform Rules To Decide On
+- Default break duration if `time` is missing (e.g., 500ms).
+- How to handle whitespace-only text nodes (usually skip after trimming).
+- Whether to merge adjacent text nodes (usually yes for clean output).
+
+Write these rules in README so you can justify them during review.
+
+---
+
+## Debugging Tips
+- Print tokens before parsing when the tree looks wrong.
+- Add `console.error(JSON.stringify(node, null, 2))` inside the transformer to inspect context propagation.
+- Keep `SsmlError` messages short and specific; e.g., `SsmlError: Attribute time missing quotes (index 42)`.
+
+---
+
+## Practice Checklist
+Speak these aloud at the start of each drill:
+1. “Tokenizer: emit OPEN/SELF/CLOSE/TEXT exactly like the sample.”
+2. “Parser: stack never lies; unmatched tags throw immediately.”
+3. “Transformer: break → milliseconds, text → trimmed string, context → cloned.”
+4. “Tests: add a case for each bug I fix.”
+
+When you can produce the tokens, tree, and steps from memory for the sample input above, you’re ready to handle whatever SSML they throw at you.
